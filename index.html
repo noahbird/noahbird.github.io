@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Countdown to Noah's Constructive!</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #96E6B3);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        #countdown {
+            font-size: 5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            gap: 20px;
+            perspective: 1000px;
+        }
+
+        .time-segment {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .time-value {
+            height: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-label {
+            font-size: 1rem;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        #link {
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: none;
+        }
+
+        #link a {
+            color: #fff;
+            text-decoration: none;
+            padding: 20px 40px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border-radius: 50px;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        #link a:hover {
+            transform: scale(1.1) rotate(-2deg);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        #skipButton {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.01;
+            cursor: pointer;
+            padding: 10px;
+            border: none;
+            background: transparent;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <button id="skipButton">Skip</button>
+    <h1 class="title">Countdown to Noah's Constructive!</h1>
+    <div id="countdown"></div>
+    <div id="link">
+        <a href="https://docs.google.com/document/d/1O8U-RPdH180bWlH2NGD6T6g4p_HLQY75uGX67oLmdG4/edit?usp=sharing" target="_blank">
+            Show me the Constructive! 🎉
+        </a>
+    </div>
+    <audio id="celebrationSound" src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAAFRgC1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAYAAAAAAAAABUYiyGIkAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZB8P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZD4P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZF8P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZH4P8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mp3"></audio>
+
+    <script>
+        function createParticles() {
+            const particles = document.createElement('div');
+            particles.className = 'particles';
+            document.body.appendChild(particles);
+
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 5 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDuration = Math.random() * 3 + 2 + 's';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        function updateCountdown() {
+            const targetDate = new Date('2024-11-04T23:59:00-08:00');
+            const now = new Date();
+            const diff = targetDate - now;
+
+            const countdownElement = document.getElementById('countdown');
+
+            if (diff <= 0) {
+                triggerCelebration();
+            } else {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                countdownElement.innerHTML = `
+                    <div class="time-segment">
+                        <div class="time-value">${String(days).padStart(2, '0')}</div>
+                        <div class="time-label">Days</div>
+                    </div>
+                    <div class="time-segment">
+                        <div class="time-value">${String(hours).padStart(2, '0')}</div>
+                        <div class="time-label">Hours</div>
+                    </div>
+                    <div class="time-segment">
+                        <div class="time-value">${String(minutes).padStart(2, '0')}</div>
+                        <div class="time-label">Minutes</div>
+                    </div>
+                    <div class="time-segment">
+                        <div class="time-value">${String(seconds).padStart(2, '0')}</div>
+                        <div class="time-label">Seconds</div>
+                    </div>
+                `;
+
+                requestAnimationFrame(updateCountdown);
+            }
+        }
+
+        function triggerCelebration() {
+            document.getElementById('countdown').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('countdown').style.display = 'none';
+                document.getElementById('link').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('link').style.opacity = '1';
+                    
+                    const audio = document.getElementById('celebrationSound');
+                    audio.play();
+
+                    const duration = 5000;
+                    const animationEnd = Date.now() + duration;
+                    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+                    function randomInRange(min, max) {
+                        return Math.random() * (max - min) + min;
+                    }
+
+                    const interval = setInterval(function() {
+                        const timeLeft = animationEnd - Date.now();
+
+                        if (timeLeft <= 0) {
+                            return clearInterval(interval);
+                        }
+
+                        const particleCount = 50 * (timeLeft / duration);
+                        confetti({
+                            ...defaults,
+                            particleCount,
+                            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                        });
+                        confetti({
+                            ...defaults,
+                            particleCount,
+                            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                        });
+                    }, 250);
+                }, 50);
+            }, 1000);
+        }
+
+        // Start the countdown
+        updateCountdown();
+
+        // Add skip button functionality
+        document.getElementById('skipButton').addEventListener('click', triggerCelebration);
+
+        // Create floating particles
+        createParticles();
+    </script>
+</body>
+</html>
